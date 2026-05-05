@@ -1,12 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function LoginPage() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
+    useEffect(() => {
+        const user = localStorage.getItem("user");
+
+        const parsedUser = JSON.parse(user);
+
+        if(parsedUser.role === "admin"){
+            window.location.href = "/admin/users";
+
+            alert("Kamu sudah login sebagai Admin");
+        }
+        
+    }, [])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,6 +35,18 @@ export default function LoginPage() {
             );
 
             console.log(response.data);
+            localStorage.setItem("token", response.data.token);
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(response.data.user)
+            );
+
+            if(response.data.user.role === "admin"){
+                window.location.href = "/admin/users";
+            } else {
+                window.location.href = "/dashboard";
+            }
 
             alert("Login Berhasil");
             
