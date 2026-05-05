@@ -1,14 +1,44 @@
+"use client";
+
+import { useState } from "react";
+import axios from "axios";
+
 export default function LoginPage() {
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        try{
+
+            const response = await axios.post(
+                "http://localhost:3000/api/auth/login",
+                {
+                    email,
+                    password,
+                }
+            );
+
+            console.log(response.data);
+
+            alert("Login Berhasil");
+            
+        } catch(error){
+            console.log(error);
+
+            alert("Login Gagal");
+        }
+        
+    }
+    
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
 
             {/* Mobile Container */}
-            <div className="w-full max-w-sm bg-white rounded-[40px] p-6 relative min-h-[750px]">
+            <div className="w-full max-w-sm bg-white rounded-[40px] p-6 relative h-[600px] overflow-hidden">
 
-                {/* Close Button */}
-                <button className="absolute top-5 right-5 w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
-                    ✕
-                </button>
 
                 {/* Header */}
                 <div className="mt-14">
@@ -18,7 +48,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Form */}
-                <form className="mt-10 space-y-5">
+                <form onSubmit={handleLogin} className="mt-10 space-y-5">
 
                     {/* Email */}
                     <div>
@@ -29,6 +59,8 @@ export default function LoginPage() {
                         <input
                             type="email"
                             placeholder="Masukkan email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             className="w-full border-b border-gray-400 py-3 outline-none text-black"
                         />
                     </div>
@@ -43,6 +75,8 @@ export default function LoginPage() {
                             <input
                                 type="password"
                                 placeholder="Masukkan password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full py-3 outline-none text-black"
                             />
 
@@ -66,7 +100,7 @@ export default function LoginPage() {
                     {/* Login Button */}
                     <button
                         type="submit"
-                        className="w-full bg-accent text-white py-3 rounded-2xl font-semibold text-lg shadow-md active:scale-95 transition"
+                        className="w-full bg-black text-white py-3 rounded-2xl font-semibold text-lg shadow-md active:scale-95 transition"
                     >
                         Log In
                     </button>
@@ -90,20 +124,6 @@ export default function LoginPage() {
                             className="w-full border border-gray-300 rounded-xl py-3 flex items-center justify-center gap-3 text-black"
                         >
                             🌐 Continue with Google
-                        </button>
-
-                        <button
-                            type="button"
-                            className="w-full border border-gray-300 rounded-xl py-3 flex items-center justify-center gap-3 text-black"
-                        >
-                            📘 Continue with Facebook
-                        </button>
-
-                        <button
-                            type="button"
-                            className="w-full border border-gray-300 rounded-xl py-3 flex items-center justify-center gap-3 text-black"
-                        >
-                            🍎 Continue with Apple
                         </button>
 
                     </div>
