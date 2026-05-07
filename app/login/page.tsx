@@ -11,6 +11,10 @@ export default function LoginPage() {
     useEffect(() => {
         const user = localStorage.getItem("user");
 
+        if(!user){
+            return;
+        }
+
         const parsedUser = JSON.parse(user);
 
         if(parsedUser.role === "admin"){
@@ -35,6 +39,8 @@ export default function LoginPage() {
             );
 
             console.log(response.data);
+
+            // simpan token
             localStorage.setItem("token", response.data.token);
 
             localStorage.setItem(
