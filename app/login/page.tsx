@@ -8,27 +8,69 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const checkTokenExpired = () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            return false;
+        }
+
+        try {
+
+            const decoded: any = jwtDecode(token);
+
+            const currentTime = Date.now() / 1000;
+
+            if (decoded.exp < currentTime) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+
+                alert("Session habis, silahkan login kembali");
+
+                window.location.href = "/login";
+
+                return false
+            }
+
+            return true
+
+        } catch (error) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+
+            return false;
+        }
+
+    }
+
     useEffect(() => {
+
+        const isValid = checkTokenExpired();
+
+        if (!isValid) {
+            return;
+        }
+        
         const user = localStorage.getItem("user");
 
-        if(!user){
+        if (!user) {
             return;
         }
 
         const parsedUser = JSON.parse(user);
 
-        if(parsedUser.role === "admin"){
+        if (parsedUser.role === "admin") {
             window.location.href = "/admin/users";
 
             alert("Kamu sudah login sebagai Admin");
         }
-        
+
     }, [])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        try{
+        try {
 
             const response = await axios.post(
                 "http://localhost:3000/api/auth/login",
@@ -48,22 +90,22 @@ export default function LoginPage() {
                 JSON.stringify(response.data.user)
             );
 
-            if(response.data.user.role === "admin"){
+            if (response.data.user.role === "admin") {
                 window.location.href = "/admin/users";
             } else {
                 window.location.href = "/dashboard";
             }
 
             alert("Login Berhasil");
-            
-        } catch(error){
+
+        } catch (error) {
             console.log(error);
 
             alert("Login Gagal");
         }
-        
+
     }
-    
+
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
 

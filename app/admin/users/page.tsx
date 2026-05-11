@@ -3,13 +3,56 @@
 import axios from "axios";
 import { trackThrownErrorInNavigation } from "next/dist/server/app-render/dynamic-rendering";
 import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 
 export default function AdminUsersPage() {
 
     const [users, setUsers] = useState([]);
 
+    const checkTokenExpired = () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            return false;
+        }
+
+        try {
+
+            const decoded: any = jwtDecode(token);
+
+            const currentTime = Date.now() / 1000;
+
+            if (decoded.exp < currentTime) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+
+                alert("Session habis, silahkan login kembali");
+
+                window.location.href = "/login";
+
+                return false
+            }
+
+            return true
+
+        } catch (error) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+
+            return false;
+        }
+
+    }
+
 
     useEffect(() => {
+
+        const isValid = checkTokenExpired();
+
+        if (!isValid) {
+            return;
+        }
+
         fetchUser();
 
         const user = localStorage.getItem("user");
@@ -46,6 +89,34 @@ export default function AdminUsersPage() {
         } catch (error) {
             console.log(error);
         }
+    };
+
+    const deleteUser = async (id: number) => {
+        console.log('masuk delete');
+
+        try{
+
+            const token = localStorage.getItem("token");
+
+            await axios.delete(
+              `http://localhost:3000/api/users/${id}`,
+              {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+              }
+            );
+
+            alert("User berhasil dihapus");
+
+            fetchUser();
+            
+        }catch(error){
+            console.log(error)
+
+            alert("Gagal menghapus user");
+        }
+        
     };
 
     const handleLogout = () => {
@@ -143,7 +214,9 @@ export default function AdminUsersPage() {
                                     Edit
                                 </button>
 
-                                <button className="flex-1 bg-red-500 py-2 rounded-xl text-white font-medium active:scale-95 transition">
+                                <button 
+                                onClick={() => deleteUser(user.id)}
+                                className="flex-1 bg-red-500 py-2 rounded-xl text-white font-medium active:scale-95 transition">
                                     Delete
                                 </button>
 
@@ -220,7 +293,9 @@ export default function AdminUsersPage() {
                                                 Edit
                                             </button>
 
-                                            <button className="bg-red-500 px-4 py-2 rounded-lg text-white text-sm">
+                                            <button 
+                                            onClick={() => deleteUser(user.id)}
+                                            className="bg-red-500 px-4 py-2 rounded-lg text-white text-sm">
                                                 Delete
                                             </button>
 
