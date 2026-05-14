@@ -4,6 +4,7 @@ import axios from "axios";
 import { trackThrownErrorInNavigation } from "next/dist/server/app-render/dynamic-rendering";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2";
 
 export default function AdminUsersPage() {
 
@@ -26,7 +27,12 @@ export default function AdminUsersPage() {
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");
 
-                alert("Session habis, silahkan login kembali");
+                Swal.fire({
+                    icon: "warning",
+                    title: "Session Habis",
+                    text: "Silahkan login kembali",
+                    confirmButtonColor: "#3b82f6"
+                });
 
                 window.location.href = "/login";
 
@@ -47,26 +53,45 @@ export default function AdminUsersPage() {
 
     useEffect(() => {
 
-        const isValid = checkTokenExpired();
+        const checkAuth = async () => {
+            checkTokenExpired();
 
-        if (!isValid) {
-            return;
+            const user = localStorage.getItem("user");
+
+            if (!user) {
+
+                await Swal.fire({
+                    icon: "warning",
+                    title: "Belum Login",
+                    text: "Silahkan login terlebih dahulu",
+                    confirmButtonColor: "#3b82f6"
+                });
+
+                window.location.href = "/login";
+
+                return;
+            }
+
+            const parsedUser = JSON.parse(user);
+
+            if (parsedUser.role !== "admin") {
+
+                await Swal.fire({
+                    icon: "error",
+                    title: "Akses Ditolak",
+                    text: "Kamu bukan admin",
+                    confirmButtonColor: "#ef4444"
+                });
+
+
+                window.location.href = "/dashboard";
+            }
+
+            fetchUser();
+
         }
 
-        fetchUser();
-
-        const user = localStorage.getItem("user");
-
-        if (!user) {
-            window.location.href = "/login";
-            return;
-        }
-
-        const parsedUser = JSON.parse(user);
-
-        if (parsedUser.role !== "admin") {
-            window.location.href = "/dashboard";
-        }
+        checkAuth();
 
     }, []);
 
@@ -92,31 +117,56 @@ export default function AdminUsersPage() {
     };
 
     const deleteUser = async (id: number) => {
-        console.log('masuk delete');
+        // console.log('masuk delete');
 
-        try{
+        const result = await Swal.fire({
+            title: "Yakin?",
+            text: "User akan dihapus permanen",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "Ya, hapus",
+            cancelButtonText: "Batal"
+        });
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        try {
 
             const token = localStorage.getItem("token");
 
             await axios.delete(
-              `http://localhost:3000/api/users/${id}`,
-              {
-                headers: {
-                    Authorization: `Bearer ${token}`
+                `http://localhost:3000/api/users/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
                 }
-              }
             );
 
-            alert("User berhasil dihapus");
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil",
+                text: "User berhasil dihapus",
+                timer: 1500,
+                showConfirmButton: false
+            });
 
             fetchUser();
-            
-        }catch(error){
+
+        } catch (error) {
             console.log(error)
 
-            alert("Gagal menghapus user");
+            Swal.fire({
+                icon: "error",
+                title: "Gagal",
+                text: "Gagal menghapus user"
+            });
         }
-        
+
     };
 
     const handleLogout = () => {
@@ -214,9 +264,9 @@ export default function AdminUsersPage() {
                                     Edit
                                 </button>
 
-                                <button 
-                                onClick={() => deleteUser(user.id)}
-                                className="flex-1 bg-red-500 py-2 rounded-xl text-white font-medium active:scale-95 transition">
+                                <button
+                                    onClick={() => deleteUser(user.id)}
+                                    className="flex-1 bg-red-500 py-2 rounded-xl text-white font-medium active:scale-95 transition">
                                     Delete
                                 </button>
 
@@ -293,9 +343,9 @@ export default function AdminUsersPage() {
                                                 Edit
                                             </button>
 
-                                            <button 
-                                            onClick={() => deleteUser(user.id)}
-                                            className="bg-red-500 px-4 py-2 rounded-lg text-white text-sm">
+                                            <button
+                                                onClick={() => deleteUser(user.id)}
+                                                className="bg-red-500 px-4 py-2 rounded-lg text-white text-sm">
                                                 Delete
                                             </button>
 
