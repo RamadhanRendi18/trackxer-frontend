@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
+import { jwtDecode } from "jwt-decode";
 
 export default function LoginPage() {
 
@@ -50,7 +52,7 @@ export default function LoginPage() {
         if (!isValid) {
             return;
         }
-        
+
         const user = localStorage.getItem("user");
 
         if (!user) {
@@ -90,18 +92,29 @@ export default function LoginPage() {
                 JSON.stringify(response.data.user)
             );
 
+            await Swal.fire({
+                icon: "success",
+                title: "Login Berhasil",
+                text: "Redirecting...",
+                timer: 2000,
+                showConfirmButton: false
+            });
+
             if (response.data.user.role === "admin") {
                 window.location.href = "/admin/users";
             } else {
                 window.location.href = "/dashboard";
             }
 
-            alert("Login Berhasil");
 
         } catch (error) {
-            console.log(error);
-
-            alert("Login Gagal");
+            
+            await Swal.fire({
+                icon: "error",
+                title: "Login Gagal",
+                text: "Email atau password salah",
+                confirmButtonColor: "#ef4444"
+            });
         }
 
     }

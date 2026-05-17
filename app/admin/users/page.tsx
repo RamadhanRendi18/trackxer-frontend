@@ -5,6 +5,7 @@ import { trackThrownErrorInNavigation } from "next/dist/server/app-render/dynami
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
+import Link from "next/link";
 
 export default function AdminUsersPage() {
 
@@ -169,14 +170,27 @@ export default function AdminUsersPage() {
 
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        const result = await Swal.fire({
+            title: "Yakin?",
+            text: "Kamu akan logout dari akun ini",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "Ya, logout",
+            cancelButtonText: "Batal"
+        });
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
         window.location.href = "/login";
-    };
-
-
+    }
 
     return (
         <div className="min-h-screen bg-background text-textPrimary">
@@ -196,9 +210,12 @@ export default function AdminUsersPage() {
 
                 <div className="flex gap-2">
 
-                    <button className="bg-primary px-4 py-2 rounded-xl font-semibold text-white active:scale-95 transition">
+                    <Link 
+                        href="/admin/users/create"
+                        className="bg-primary px-4 py-2 rounded-xl font-semibold text-white active:scale-95 transition"
+                    >
                         + User
-                    </button>
+                    </Link>
 
                     <button
                         onClick={handleLogout}
@@ -260,9 +277,11 @@ export default function AdminUsersPage() {
                             {/* Action */}
                             <div className="flex gap-3 mt-5">
 
-                                <button className="flex-1 bg-secondary py-2 rounded-xl text-white font-medium active:scale-95 transition">
+                                <Link 
+                                    href={`/admin/users/edit/${user.id}`}
+                                    className="flex-1 bg-secondary py-2 rounded-xl text-white font-medium active:scale-95 transition">
                                     Edit
-                                </button>
+                                </Link>
 
                                 <button
                                     onClick={() => deleteUser(user.id)}

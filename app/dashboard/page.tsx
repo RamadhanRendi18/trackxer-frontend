@@ -1,8 +1,24 @@
 "use client";
+import Swal from "sweetalert2";
 
 export default function DashboardPage() {
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        const result = await Swal.fire({
+            title: "Yakin?",
+            text: "Kamu akan logout dari akun ini",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "Ya, logout",
+            cancelButtonText: "Batal"
+        });
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
