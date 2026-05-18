@@ -9,7 +9,11 @@ import Link from "next/link";
 
 export default function AdminUsersPage() {
 
+    const [search, setSearch] = useState("");
     const [users, setUsers] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const usersPerPage = 2;
 
     const checkTokenExpired = () => {
         const token = localStorage.getItem("token");
@@ -55,7 +59,11 @@ export default function AdminUsersPage() {
     useEffect(() => {
 
         const checkAuth = async () => {
-            checkTokenExpired();
+            const isValid = checkTokenExpired();
+
+            if (!isValid) {
+                return;
+            }
 
             const user = localStorage.getItem("user");
 
@@ -192,6 +200,25 @@ export default function AdminUsersPage() {
         window.location.href = "/login";
     }
 
+    const filteredUsers = users.filter((user: any) =>
+        user.name.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const indexOfLastUser = currentPage * usersPerPage;
+
+    const indexOfFirstUser =
+        indexOfLastUser - usersPerPage;
+
+    const currentUsers = filteredUsers.slice(
+        indexOfFirstUser,
+        indexOfLastUser
+    );
+
+    const totalPages = Math.ceil(
+        filteredUsers.length / usersPerPage
+    );
+
     return (
         <div className="min-h-screen bg-background text-textPrimary">
 
@@ -210,7 +237,7 @@ export default function AdminUsersPage() {
 
                 <div className="flex gap-2">
 
-                    <Link 
+                    <Link
                         href="/admin/users/create"
                         className="bg-primary px-4 py-2 rounded-xl font-semibold text-white active:scale-95 transition"
                     >
@@ -237,6 +264,11 @@ export default function AdminUsersPage() {
                     <input
                         type="text"
                         placeholder="Cari user..."
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         className="w-full bg-surface border border-gray-700 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-secondary"
                     />
 
@@ -244,8 +276,13 @@ export default function AdminUsersPage() {
 
                 {/* Mobile Card List */}
                 <div className="space-y-4 md:hidden">
+                    {currentUsers.length === 0 && (
+                        <div className="text-center text-textSecondary py-10">
+                            User tidak ditemukan
+                        </div>
+                    )}
 
-                    {users.map((user) => (
+                    {currentUsers.map((user: any) => (
                         <div
                             key={user.id}
                             className="bg-surface rounded-2xl p-4 border border-gray-700"
@@ -277,9 +314,9 @@ export default function AdminUsersPage() {
                             {/* Action */}
                             <div className="flex gap-3 mt-5">
 
-                                <Link 
+                                <Link
                                     href={`/admin/users/edit/${user.id}`}
-                                    className="flex-1 bg-secondary py-2 rounded-xl text-white font-medium active:scale-95 transition">
+                                    className="flex-1 text-center bg-secondary py-2 rounded-xl text-white font-medium active:scale-95 transition">
                                     Edit
                                 </Link>
 
@@ -327,57 +364,109 @@ export default function AdminUsersPage() {
 
                         <tbody>
 
-                            {users.map((user) => (
-                                <tr
-                                    key={user.id}
-                                    className="border-t border-gray-700"
-                                >
+                            {currentUsers.length === 0 ? (
 
-                                    <td className="px-5 py-4">
-                                        {user.name}
+                                <tr>
+                                    <td
+                                        colSpan={4}
+                                        className="text-center text-textSecondary py-10"
+                                    >
+                                        User tidak ditemukan
                                     </td>
-
-                                    <td className="px-5 py-4 text-textSecondary">
-                                        {user.email}
-                                    </td>
-
-                                    <td className="px-5 py-4">
-
-                                        <span
-                                            className={`px-3 py-1 rounded-full text-xs font-semibold ${user.role === "admin"
-                                                ? "bg-accent text-white"
-                                                : "bg-secondary text-white"
-                                                }`}
-                                        >
-                                            {user.role}
-                                        </span>
-
-                                    </td>
-
-                                    <td className="px-5 py-4">
-
-                                        <div className="flex gap-2">
-
-                                            <button className="bg-secondary px-4 py-2 rounded-lg text-white text-sm">
-                                                Edit
-                                            </button>
-
-                                            <button
-                                                onClick={() => deleteUser(user.id)}
-                                                className="bg-red-500 px-4 py-2 rounded-lg text-white text-sm">
-                                                Delete
-                                            </button>
-
-                                        </div>
-
-                                    </td>
-
                                 </tr>
-                            ))}
+
+                            ) : (
+
+                                currentUsers.map((user: any) => (
+                                    <tr
+                                        key={user.id}
+                                        className="border-t border-gray-700"
+                                    >
+
+                                        <td className="px-5 py-4">
+                                            {user.name}
+                                        </td>
+
+                                        <td className="px-5 py-4 text-textSecondary">
+                                            {user.email}
+                                        </td>
+
+                                        <td className="px-5 py-4">
+
+                                            <span
+                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${user.role === "admin"
+                                                    ? "bg-accent text-white"
+                                                    : "bg-secondary text-white"
+                                                    }`}
+                                            >
+                                                {user.role}
+                                            </span>
+
+                                        </td>
+
+                                        <td className="px-5 py-4">
+
+                                            <div className="flex gap-2">
+
+                                                <Link
+                                                    href={`/admin/users/edit/${user.id}`}
+                                                    className="text-center bg-secondary px-4 py-2 rounded-lg text-white text-sm"
+                                                >
+                                                    Edit
+                                                </Link>
+
+                                                <button
+                                                    onClick={() => deleteUser(user.id)}
+                                                    className="bg-red-500 px-4 py-2 rounded-lg text-white text-sm"
+                                                >
+                                                    Delete
+                                                </button>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+                                ))
+
+                            )}
 
                         </tbody>
 
                     </table>
+
+                </div>
+
+                {/* Pagination */}
+                <div className="flex items-center justify-center gap-3 mt-8">
+
+                    <button
+                        onClick={() =>
+                            setCurrentPage((prev) =>
+                                prev > 1 ? prev - 1 : prev
+                            )
+                        }
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-xl bg-surface border border-gray-700 disabled:opacity-50"
+                    >
+                        Prev
+                    </button>
+
+                    <span className="text-sm text-textSecondary">
+                        Halaman {currentPage} dari {totalPages || 1}
+                    </span>
+
+                    <button
+                        onClick={() =>
+                            setCurrentPage((prev) =>
+                                prev < totalPages ? prev + 1 : prev
+                            )
+                        }
+                        disabled={currentPage === totalPages || totalPages === 0}
+                        className="px-4 py-2 rounded-xl bg-surface border border-gray-700 disabled:opacity-50"
+                    >
+                        Next
+                    </button>
 
                 </div>
 

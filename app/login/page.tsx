@@ -9,8 +9,10 @@ export default function LoginPage() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const checkTokenExpired = () => {
+    const checkTokenExpired = async () => {
         const token = localStorage.getItem("token");
 
         if (!token) {
@@ -27,7 +29,12 @@ export default function LoginPage() {
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");
 
-                alert("Session habis, silahkan login kembali");
+                await Swal.fire({
+                    icon: "warning",
+                    title: "Session Habis",
+                    text: "Silahkan login kembali",
+                    confirmButtonColor: "#F97316"
+                });
 
                 window.location.href = "/login";
 
@@ -47,32 +54,56 @@ export default function LoginPage() {
 
     useEffect(() => {
 
-        const isValid = checkTokenExpired();
+        const checkLogin = async () => {
 
-        if (!isValid) {
-            return;
-        }
+            const isValid = await checkTokenExpired();
 
-        const user = localStorage.getItem("user");
+            if (!isValid) {
+                return;
+            }
 
-        if (!user) {
-            return;
-        }
+            const user = localStorage.getItem("user");
 
-        const parsedUser = JSON.parse(user);
+            if (!user) {
+                return;
+            }
 
-        if (parsedUser.role === "admin") {
-            window.location.href = "/admin/users";
+            const parsedUser = JSON.parse(user);
 
-            alert("Kamu sudah login sebagai Admin");
-        }
+            if (parsedUser.role === "admin") {
 
-    }, [])
+                await Swal.fire({
+                    icon: "info",
+                    title: "Sudah Login",
+                    text: "Kamu sudah login sebagai Admin",
+                    confirmButtonColor: "#0EA5E9"
+                });
+
+                window.location.href = "/admin/users";
+            }
+
+        };
+
+        checkLogin();
+
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        setLoading(true);
+
         try {
+
+            if (!email || !password) {
+                await Swal.fire({
+                    icon: "warning",
+                    title: "Form Kosong",
+                    text: "Email dan password wajib diisi",
+                });
+
+                return;
+            }
 
             const response = await axios.post(
                 "http://localhost:3000/api/auth/login",
@@ -82,9 +113,6 @@ export default function LoginPage() {
                 }
             );
 
-            console.log(response.data);
-
-            // simpan token
             localStorage.setItem("token", response.data.token);
 
             localStorage.setItem(
@@ -106,17 +134,22 @@ export default function LoginPage() {
                 window.location.href = "/dashboard";
             }
 
+        } catch (error: any) {
 
-        } catch (error) {
-            
             await Swal.fire({
                 icon: "error",
                 title: "Login Gagal",
-                text: "Email atau password salah",
+                text:
+                    error.response?.data?.message ||
+                    "Terjadi kesalahan",
                 confirmButtonColor: "#ef4444"
             });
-        }
 
+        } finally {
+
+            setLoading(false);
+
+        }
     }
 
     return (
@@ -159,7 +192,7 @@ export default function LoginPage() {
 
                         <div className="flex items-center border-b border-gray-400">
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 placeholder="Masukkan password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -168,9 +201,10 @@ export default function LoginPage() {
 
                             <button
                                 type="button"
+                                onClick={() => setShowPassword(!showPassword)}
                                 className="text-gray-500"
                             >
-                                👁
+                                {showPassword ? "🙈" : "👁"}
                             </button>
                         </div>
                     </div>
@@ -186,9 +220,10 @@ export default function LoginPage() {
                     {/* Login Button */}
                     <button
                         type="submit"
-                        className="w-full bg-black text-white py-3 rounded-2xl font-semibold text-lg shadow-md active:scale-95 transition"
+                        disabled={loading}
+                        className="w-full bg-black text-white py-3 rounded-2xl font-semibold text-lg shadow-md disabled:opacity-50"
                     >
-                        Log In
+                        {loading ? "Loading..." : "Log In"}
                     </button>
 
                     {/* Divider */}
