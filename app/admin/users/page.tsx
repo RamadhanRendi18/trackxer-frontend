@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
 import Link from "next/link";
+import AdminLayout from "../../components/admin/AdminLayout";
+import AdminHeader from "../../components/admin/AdminHeader";
 
 export default function AdminUsersPage() {
 
@@ -220,40 +222,26 @@ export default function AdminUsersPage() {
     );
 
     return (
-        <div className="min-h-screen bg-background text-textPrimary">
+        <AdminLayout>
 
-            {/* Header */}
-            <div className="sticky top-0 z-10 bg-surface border-b border-gray-700 px-5 py-4 flex items-center justify-between">
+            <AdminHeader
+                title="User Management"
+                description="Kelola data user Trackxer"
+            >
+                <Link
+                    href="/admin/users/create"
+                    className="bg-primary px-4 py-2 rounded-xl font-semibold text-white active:scale-95 transition"
+                >
+                    + User
+                </Link>
 
-                <div>
-                    <h1 className="text-xl font-bold">
-                        User Management
-                    </h1>
-
-                    <p className="text-sm text-textSecondary">
-                        Kelola data user Trackxer
-                    </p>
-                </div>
-
-                <div className="flex gap-2">
-
-                    <Link
-                        href="/admin/users/create"
-                        className="bg-primary px-4 py-2 rounded-xl font-semibold text-white active:scale-95 transition"
-                    >
-                        + User
-                    </Link>
-
-                    <button
-                        onClick={handleLogout}
-                        className="bg-red-500 px-4 py-2 rounded-xl font-semibold text-white active:scale-95 transition"
-                    >
-                        Logout
-                    </button>
-
-                </div>
-
-            </div>
+                <button
+                    onClick={handleLogout}
+                    className="bg-red-500 px-4 py-2 rounded-xl font-semibold text-white active:scale-95 transition"
+                >
+                    Logout
+                </button>
+            </AdminHeader>
 
             {/* Content */}
             <div className="p-5">
@@ -276,6 +264,7 @@ export default function AdminUsersPage() {
 
                 {/* Mobile Card List */}
                 <div className="space-y-4 md:hidden">
+
                     {currentUsers.length === 0 && (
                         <div className="text-center text-textSecondary py-10">
                             User tidak ditemukan
@@ -302,8 +291,8 @@ export default function AdminUsersPage() {
 
                                 <span
                                     className={`px-3 py-1 rounded-full text-xs font-semibold ${user.role === "admin"
-                                        ? "bg-accent text-white"
-                                        : "bg-secondary text-white"
+                                            ? "bg-accent text-white"
+                                            : "bg-secondary text-white"
                                         }`}
                                 >
                                     {user.role}
@@ -316,13 +305,15 @@ export default function AdminUsersPage() {
 
                                 <Link
                                     href={`/admin/users/edit/${user.id}`}
-                                    className="flex-1 text-center bg-secondary py-2 rounded-xl text-white font-medium active:scale-95 transition">
+                                    className="flex-1 text-center bg-secondary py-2 rounded-xl text-white font-medium active:scale-95 transition"
+                                >
                                     Edit
                                 </Link>
 
                                 <button
                                     onClick={() => deleteUser(user.id)}
-                                    className="flex-1 bg-red-500 py-2 rounded-xl text-white font-medium active:scale-95 transition">
+                                    className="flex-1 bg-red-500 py-2 rounded-xl text-white font-medium active:scale-95 transition"
+                                >
                                     Delete
                                 </button>
 
@@ -395,8 +386,8 @@ export default function AdminUsersPage() {
 
                                             <span
                                                 className={`px-3 py-1 rounded-full text-xs font-semibold ${user.role === "admin"
-                                                    ? "bg-accent text-white"
-                                                    : "bg-secondary text-white"
+                                                        ? "bg-accent text-white"
+                                                        : "bg-secondary text-white"
                                                     }`}
                                             >
                                                 {user.role}
@@ -472,6 +463,6 @@ export default function AdminUsersPage() {
 
             </div>
 
-        </div>
+        </AdminLayout>
     );
 }

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { use } from "react";
+import AdminLayout from "../../../../components/admin/AdminLayout";
+import AdminHeader from "../../../../components/admin/AdminHeader";
 
 export default function EditUserPage({
     params
@@ -100,100 +102,107 @@ export default function EditUserPage({
     };
 
     return (
-        <div className="min-h-screen bg-background text-textPrimary p-5">
+        <AdminLayout>
 
-            <div className="max-w-md mx-auto bg-surface rounded-3xl p-6">
+            <AdminHeader
+                title="Edit User"
+                description="Update data user Trackxer"
+            >
 
                 <Link
                     href="/admin/users"
-                    className="inline-flex items-center gap-2 text-textSecondary hover:text-textPrimary transition mb-6"
+                    className="bg-gray-700 px-4 py-2 rounded-xl text-white"
                 >
                     ← Kembali
                 </Link>
 
-                <h1 className="text-2xl font-bold mb-6">
-                    Edit User
-                </h1>
+            </AdminHeader>
 
-                <form
-                    onSubmit={handleUpdateUser}
-                    className="space-y-5"
-                >
+            <div className="p-5">
 
-                    {/* Nama */}
-                    <div>
+                <div className="max-w-md mx-auto bg-surface rounded-3xl p-6">
 
-                        <label className="text-sm text-textSecondary">
-                            Nama
-                        </label>
-
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) =>
-                                setName(e.target.value)
-                            }
-                            className="w-full mt-2 px-4 py-3 rounded-xl bg-background border border-gray-700 outline-none"
-                        />
-
-                    </div>
-
-                    {/* Email */}
-                    <div>
-
-                        <label className="text-sm text-textSecondary">
-                            Email
-                        </label>
-
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) =>
-                                setEmail(e.target.value)
-                            }
-                            className="w-full mt-2 px-4 py-3 rounded-xl bg-background border border-gray-700 outline-none"
-                        />
-
-                    </div>
-
-                    {/* Role */}
-                    <div>
-
-                        <label className="text-sm text-textSecondary">
-                            Role
-                        </label>
-
-                        <select
-                            value={role}
-                            onChange={(e) =>
-                                setRole(e.target.value)
-                            }
-                            className="w-full mt-2 px-4 py-3 rounded-xl bg-background border border-gray-700 outline-none"
-                        >
-
-                            <option value="user">
-                                User
-                            </option>
-
-                            <option value="admin">
-                                Admin
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="w-full bg-secondary py-3 rounded-xl font-semibold"
+                    <form
+                        onSubmit={handleUpdateUser}
+                        className="space-y-5"
                     >
-                        Update User
-                    </button>
 
-                </form>
+                        {/* Nama */}
+                        <div>
+
+                            <label className="text-sm text-textSecondary">
+                                Nama
+                            </label>
+
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) =>
+                                    setName(e.target.value)
+                                }
+                                className="w-full mt-2 px-4 py-3 rounded-xl bg-background border border-gray-700 outline-none"
+                            />
+
+                        </div>
+
+                        {/* Email */}
+                        <div>
+
+                            <label className="text-sm text-textSecondary">
+                                Email
+                            </label>
+
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) =>
+                                    setEmail(e.target.value)
+                                }
+                                className="w-full mt-2 px-4 py-3 rounded-xl bg-background border border-gray-700 outline-none"
+                            />
+
+                        </div>
+
+                        {/* Role */}
+                        <div>
+
+                            <label className="text-sm text-textSecondary">
+                                Role
+                            </label>
+
+                            <select
+                                value={role}
+                                onChange={(e) =>
+                                    setRole(e.target.value)
+                                }
+                                className="w-full mt-2 px-4 py-3 rounded-xl bg-background border border-gray-700 outline-none"
+                            >
+
+                                <option value="user">
+                                    User
+                                </option>
+
+                                <option value="admin">
+                                    Admin
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full bg-secondary py-3 rounded-xl font-semibold"
+                        >
+                            Update User
+                        </button>
+
+                    </form>
+
+                </div>
 
             </div>
 
-        </div>
+        </AdminLayout>
     );
 }
